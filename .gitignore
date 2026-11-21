@@ -1,0 +1,4 @@
+images/originals/
+__pycache__/
+*.bundle
+.claude/
