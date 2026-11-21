@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>ST_cache — 캠퍼스 지오캐싱 프로토타입</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header id="topbar">
+    <span id="title">ST_cache</span>
+    <span id="progress">찾은 장소 0 / 0</span>
+  </header>
+
+  <div id="map"></div>
+
+  <aside id="debug" class="collapsed">
+    <button id="debug-toggle" type="button">디버그</button>
+    <div id="debug-body"></div>
+  </aside>
+
+  <section id="card" hidden>
+    <button id="card-close" type="button" aria-label="닫기">×</button>
+    <div id="card-content"></div>
+  </section>
+
+  <div id="toast" hidden></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="places.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
