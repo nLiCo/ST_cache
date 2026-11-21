@@ -47,11 +47,26 @@ function saveFound() {
 
 const found = loadFound();
 
-for (const place of PLACES) {
-  const marker = L.marker([place.lat, place.lng], { icon: placeIcon(found.has(place.id)) }).addTo(map);
-  marker.on("click", () => openCard(place.id));
-  markers[place.id] = marker;
+// 찾기 전 장소의 위치는 곧 답이라서 지도에 올리지 않는다. 찾은 장소만 별로 보여 준다.
+function refreshMarker(place) {
+  const isFound = found.has(place.id);
+  let marker = markers[place.id];
+  if (!isFound) {
+    if (marker) {
+      marker.remove();
+      delete markers[place.id];
+    }
+    return;
+  }
+  if (!marker) {
+    marker = L.marker([place.lat, place.lng]).addTo(map);
+    marker.on("click", () => openCard(place.id));
+    markers[place.id] = marker;
+  }
+  marker.setIcon(placeIcon(isFound));
 }
+
+for (const place of PLACES) refreshMarker(place);
 
 // ---------- 거리 계산 ----------
 
@@ -102,7 +117,8 @@ function checkArrivals() {
     if (d <= place.radius) {
       found.add(place.id);
       saveFound();
-      markers[place.id].setIcon(placeIcon(true));
+      refreshMarker(place);
+      renderStrip();
       updateProgress();
       showToast(`'${place.name}'을(를) 찾았어요!`);
       openCard(place.id);
@@ -140,13 +156,35 @@ function renderCard(place) {
       <img src="${escapeHtml(place.photo)}" alt="${escapeHtml(place.name)} 사진">
       <p class="story">${escapeHtml(place.story)}</p>`;
   }
-  const dist = me ? `${Math.round(distanceMeters(me.lat, me.lng, place.lat, place.lng))} m` : "위치 확인 중…";
+  // 남은 거리는 보여 주지 않는다. 사진만 보고 추측해서 찾아가는 게 핵심이다.
+  const hint = place.hint ? `<div class="hint">${escapeHtml(place.hint)}</div>` : "";
   return `
     <h2>${escapeHtml(place.name)}</h2>
-    <div class="status">아직 찾지 못한 장소 · 반경 ${place.radius} m 안으로 가면 열려요</div>
-    <div class="hint">${escapeHtml(place.hint)}</div>
-    <div class="distance">${dist}</div>`;
+    <div class="status">사진 속 장소를 찾아가 보세요 · 반경 ${place.radius} m 안에 들어가면 열려요</div>
+    <img src="${escapeHtml(place.photo)}" alt="찾아갈 장소 사진">
+    ${hint}`;
 }
+
+// ---------- 사진 목록 (화면 아래 띠) ----------
+
+const strip = document.getElementById("strip");
+
+function renderStrip() {
+  strip.innerHTML = PLACES.map((place) => {
+    const isFound = found.has(place.id);
+    return `
+      <button type="button" class="thumb ${isFound ? "found" : ""}" data-id="${escapeHtml(place.id)}">
+        <img src="${escapeHtml(place.photo)}" alt="">
+        ${isFound ? '<span class="badge">★</span>' : ""}
+        <span class="label">${escapeHtml(place.name)}</span>
+      </button>`;
+  }).join("");
+}
+
+strip.addEventListener("click", (e) => {
+  const thumb = e.target.closest(".thumb");
+  if (thumb) openCard(thumb.dataset.id);
+});
 
 function openCard(id) {
   const place = PLACES.find((p) => p.id === id);
@@ -225,7 +263,8 @@ function renderDebug() {
 function resetFound() {
   found.clear();
   saveFound();
-  for (const place of PLACES) markers[place.id].setIcon(placeIcon(false));
+  for (const place of PLACES) refreshMarker(place);
+  renderStrip();
   updateProgress();
   refreshOpenCard();
   renderDebug();
@@ -243,6 +282,7 @@ function startMock() {
 
 // ---------- 시작 ----------
 
+renderStrip();
 updateProgress();
 renderDebug();
 if (MOCK) startMock();
