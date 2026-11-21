@@ -11,5 +11,10 @@
 
 ## 장소 수정
 
-`places.js`의 `CAMPUS_CENTER`와 각 장소의 `lat`, `lng`, `hint`, `story`, `photo`를 바꾼다.
-사진은 `images/`에 넣는다.
+1. 장소 앞에서 폰 카메라로 사진을 찍는다 (카메라 설정에서 위치 태그를 켠다).
+2. 폰을 USB로 연결해 `내부 저장소\DCIM\Camera`의 원본을 `images/originals/`에 복사한다.
+   Gmail이나 메신저 등 앱을 거치면 위치가 지워진다.
+3. `places.js`에 장소를 만들고 `photo`를 `"images/<원본 파일 이름>"`으로 적는다.
+4. `python tools/photos.py`를 실행한다 (Pillow 필요: `pip install pillow`).
+   좌표가 `lat`, `lng`에 들어가고, EXIF를 지운 축소본이 `images/`에 생긴다.
+5. `name`, `hint`, `story`는 직접 적는다. `images/originals/`는 커밋하지 않는다.
