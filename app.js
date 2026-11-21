@@ -91,6 +91,7 @@ function updateMe(lat, lng, accuracy) {
 
   checkArrivals();
   refreshOpenCard();
+  renderDebug();
 }
 
 function checkArrivals() {
@@ -182,7 +183,67 @@ function showToast(msg) {
   toastTimer = setTimeout(() => { el.hidden = true; }, 3000);
 }
 
+// ---------- 디버그 패널 ----------
+// 캠퍼스에서 GPS가 쓸 만한지 숫자로 확인하기 위한 패널
+
+const MOCK = new URLSearchParams(location.search).has("mock");
+const debugEl = document.getElementById("debug");
+const debugBody = document.getElementById("debug-body");
+
+document.getElementById("debug-toggle").addEventListener("click", () => {
+  debugEl.classList.toggle("collapsed");
+});
+
+function renderDebug() {
+  const lines = [];
+  lines.push(`모드: ${MOCK ? "가짜 위치(mock)" : "GPS"}`);
+  if (me) {
+    lines.push(`위도: ${me.lat.toFixed(6)}`);
+    lines.push(`경도: ${me.lng.toFixed(6)}`);
+    lines.push(`정확도: ±${Math.round(me.accuracy)} m`);
+    lines.push(`갱신: ${me.time.toLocaleTimeString()}`);
+    lines.push("");
+    for (const place of PLACES) {
+      const d = Math.round(distanceMeters(me.lat, me.lng, place.lat, place.lng));
+      lines.push(`${found.has(place.id) ? "★" : "·"} ${place.id}: ${d} m`);
+    }
+  } else {
+    lines.push("위치 대기 중…");
+  }
+  debugBody.textContent = lines.join("\n");
+
+  {
+    const reset = document.createElement("button");
+    reset.type = "button";
+    reset.textContent = "찾은 기록 초기화";
+    reset.style.cssText = "display:block;margin-top:6px;font:inherit;";
+    reset.addEventListener("click", resetFound);
+    debugBody.appendChild(reset);
+  }
+}
+
+function resetFound() {
+  found.clear();
+  saveFound();
+  for (const place of PLACES) markers[place.id].setIcon(placeIcon(false));
+  updateProgress();
+  refreshOpenCard();
+  renderDebug();
+  showToast("찾은 기록을 초기화했어요");
+}
+
+// ---------- 가짜 위치 모드 (?mock=1) ----------
+// 지도를 클릭한 곳을 내 위치로 쓴다. 실내 개발과 발표 시연용.
+
+function startMock() {
+  showToast("가짜 위치 모드: 지도를 눌러 위치를 옮기세요");
+  debugEl.classList.remove("collapsed");
+  map.on("click", (e) => updateMe(e.latlng.lat, e.latlng.lng, 5));
+}
+
 // ---------- 시작 ----------
 
 updateProgress();
-startGeolocation();
+renderDebug();
+if (MOCK) startMock();
+else startGeolocation();
