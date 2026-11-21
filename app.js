@@ -148,6 +148,20 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
+// 한글 음절을 초성으로 바꾼다. 한글이 아닌 글자(공백, 괄호, 영문)는 그대로 둔다.
+const CHOSEONG = "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ";
+function toChoseong(text) {
+  return [...text].map((ch) => {
+    const code = ch.charCodeAt(0) - 0xac00;
+    return code >= 0 && code < 11172 ? CHOSEONG[Math.floor(code / 588)] : ch;
+  }).join("");
+}
+
+// 찾기 전에는 초성만, 찾은 뒤에는 전체 이름을 보여 준다.
+function displayName(place) {
+  return found.has(place.id) ? place.name : toChoseong(place.name);
+}
+
 function renderCard(place) {
   if (found.has(place.id)) {
     return `
@@ -159,7 +173,7 @@ function renderCard(place) {
   // 남은 거리는 보여 주지 않는다. 사진만 보고 추측해서 찾아가는 게 핵심이다.
   const hint = place.hint ? `<div class="hint">${escapeHtml(place.hint)}</div>` : "";
   return `
-    <h2>${escapeHtml(place.name)}</h2>
+    <h2>${escapeHtml(displayName(place))}</h2>
     <div class="status">사진 속 장소를 찾아가 보세요 · 반경 ${place.radius} m 안에 들어가면 열려요</div>
     <img src="${escapeHtml(place.photo)}" alt="찾아갈 장소 사진">
     ${hint}`;
@@ -176,7 +190,7 @@ function renderStrip() {
       <button type="button" class="thumb ${isFound ? "found" : ""}" data-id="${escapeHtml(place.id)}">
         <img src="${escapeHtml(place.photo)}" alt="">
         ${isFound ? '<span class="badge">★</span>' : ""}
-        <span class="label">${escapeHtml(place.name)}</span>
+        <span class="label">${escapeHtml(displayName(place))}</span>
       </button>`;
   }).join("");
 }
