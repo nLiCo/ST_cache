@@ -109,27 +109,37 @@ function updateMe(lat, lng, accuracy) {
     meCircle.setLatLng([lat, lng]).setRadius(accuracy);
   }
 
-  checkArrivals();
-  refreshOpenCard();
   renderDebug();
 }
 
-function checkArrivals() {
-  if (!me) return;
-  for (const place of PLACES) {
-    if (found.has(place.id)) continue;
-    const d = distanceMeters(me.lat, me.lng, place.lat, place.lng);
-    if (d <= place.radius) {
-      found.add(place.id);
-      saveFound();
-      refreshMarker(place);
-      renderStrip();
-      updateProgress();
-      showToast(`'${place.name}'을(를) 찾았어요!`);
-      openCard(place.id);
-    }
-  }
+// ---------- 도착 확인 ----------
+// 반경에 들어가도 자동으로 열지 않는다. 지나가다 우연히 열리거나 GPS 오차로 도착 전에
+// 열리는 걸 막기 위해, 카드의 확인 버튼을 눌렀을 때만 판정한다.
+
+const MAX_ACCURACY_M = 50;     // 이보다 부정확하면 판정하지 않는다
+const MAX_POSITION_AGE_MS = 30000; // GPS 위치가 이보다 오래됐으면 판정하지 않는다
+
+// 결과: "found" | "no-position" | "inaccurate" | "not-here"
+function confirmHere(place) {
+  if (!me || (!MOCK && Date.now() - me.time.getTime() > MAX_POSITION_AGE_MS)) return "no-position";
+  if (me.accuracy > MAX_ACCURACY_M) return "inaccurate";
+  if (distanceMeters(me.lat, me.lng, place.lat, place.lng) > place.radius) return "not-here";
+
+  found.add(place.id);
+  saveFound();
+  refreshMarker(place);
+  renderStrip();
+  updateProgress();
+  showToast(`'${place.name}'을(를) 찾았어요!`);
+  return "found";
 }
+
+// 거리는 알려 주지 않는다. 맞는지 아닌지만 말한다.
+const CONFIRM_MESSAGES = {
+  "no-position": "위치를 확인하는 중이에요. 잠시 후 다시 눌러 주세요.",
+  "inaccurate": "위치가 부정확해요. 하늘이 보이는 곳에서 잠시 후 다시 눌러 주세요.",
+  "not-here": "여기는 아닌 것 같아요. 사진을 다시 잘 보세요!",
+};
 
 function startGeolocation() {
   if (!("geolocation" in navigator)) {
@@ -179,10 +189,26 @@ function renderCard(place) {
   const hint = place.hint ? `<div class="hint">${escapeHtml(place.hint)}</div>` : "";
   return `
     <h2>${escapeHtml(displayName(place))}</h2>
-    <div class="status">사진 속 장소를 찾아가 보세요 · 반경 ${place.radius} m 안에 들어가면 열려요</div>
+    <div class="status">사진 속 장소를 찾아가서 확인 버튼을 눌러 보세요</div>
     <img src="${escapeHtml(place.photo)}" alt="찾아갈 장소 사진">
-    ${hint}`;
+    ${hint}
+    <button type="button" class="confirm" data-action="confirm">📍 여기가 맞나 확인</button>
+    <div class="check-result" hidden></div>`;
 }
+
+cardContent.addEventListener("click", (e) => {
+  if (!e.target.closest('[data-action="confirm"]')) return;
+  const place = PLACES.find((p) => p.id === openPlaceId);
+  if (!place) return;
+  const result = confirmHere(place);
+  if (result === "found") {
+    openCard(place.id); // 찾은 상태(전체 이름, 이야기)로 다시 그린다
+    return;
+  }
+  const el = cardContent.querySelector(".check-result");
+  el.textContent = CONFIRM_MESSAGES[result];
+  el.hidden = false;
+});
 
 // ---------- 사진 목록 (화면 아래 띠) ----------
 

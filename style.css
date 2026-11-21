@@ -118,6 +118,25 @@ html, body {
 #card .hint { background: #f3f1ea; padding: 10px 12px; border-radius: 8px; }
 #card img { width: 100%; max-height: 40vh; object-fit: cover; border-radius: 10px; margin: 6px 0 10px; }
 #card .story { line-height: 1.6; }
+#card .confirm {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: #1f3b2d; color: #fff;
+  font: inherit; font-size: 16px; font-weight: 700;
+  cursor: pointer;
+}
+#card .confirm:active { background: #2d5641; }
+#card .check-result {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff4e0;
+  font-size: 14px;
+}
 
 /* 디버그 패널 */
 #debug {
