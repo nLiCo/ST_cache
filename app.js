@@ -163,18 +163,10 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
-// 한글 음절을 초성으로 바꾼다. 한글이 아닌 글자(공백, 괄호, 영문)는 그대로 둔다.
-const CHOSEONG = "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ";
-function toChoseong(text) {
-  return [...text].map((ch) => {
-    const code = ch.charCodeAt(0) - 0xac00;
-    return code >= 0 && code < 11172 ? CHOSEONG[Math.floor(code / 588)] : ch;
-  }).join("");
-}
-
-// 찾기 전에는 초성만, 찾은 뒤에는 전체 이름을 보여 준다.
+// 찾기 전에는 이름을 전혀 보여 주지 않는다. 사진만 보고 추측하게 한다.
+const HIDDEN_NAME = "???";
 function displayName(place) {
-  return found.has(place.id) ? place.name : toChoseong(place.name);
+  return found.has(place.id) ? place.name : HIDDEN_NAME;
 }
 
 function renderCard(place) {
