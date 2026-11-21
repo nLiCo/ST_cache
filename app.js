@@ -1,5 +1,9 @@
 // ST_cache 프로토타입
 
+const params = new URLSearchParams(location.search);
+const MOCK = params.has("mock");   // 지도를 누른 곳을 내 위치로 쓴다
+const DEBUG = params.has("debug"); // 디버그 패널과 찾기 전 장소 마커를 보여 준다 (답이 보이는 테스트용)
+
 const map = L.map("map", { zoomControl: false })
   .setView([CAMPUS_CENTER.lat, CAMPUS_CENTER.lng], DEFAULT_ZOOM);
 
@@ -48,10 +52,11 @@ function saveFound() {
 const found = loadFound();
 
 // 찾기 전 장소의 위치는 곧 답이라서 지도에 올리지 않는다. 찾은 장소만 별로 보여 준다.
+// 디버그 모드에서는 찾기 전 장소도 자물쇠로 보여 준다.
 function refreshMarker(place) {
   const isFound = found.has(place.id);
   let marker = markers[place.id];
-  if (!isFound) {
+  if (!isFound && !DEBUG) {
     if (marker) {
       marker.remove();
       delete markers[place.id];
@@ -235,18 +240,20 @@ function showToast(msg) {
   toastTimer = setTimeout(() => { el.hidden = true; }, 3000);
 }
 
-// ---------- 디버그 패널 ----------
-// 캠퍼스에서 GPS가 쓸 만한지 숫자로 확인하기 위한 패널
+// ---------- 디버그 패널 (?debug=1) ----------
+// 캠퍼스에서 GPS가 쓸 만한지 숫자로 확인하기 위한 패널. 장소별 거리가 나와 답이 보이므로
+// 기본 화면에서는 숨긴다.
 
-const MOCK = new URLSearchParams(location.search).has("mock");
 const debugEl = document.getElementById("debug");
 const debugBody = document.getElementById("debug-body");
+debugEl.hidden = !DEBUG;
 
 document.getElementById("debug-toggle").addEventListener("click", () => {
   debugEl.classList.toggle("collapsed");
 });
 
 function renderDebug() {
+  if (!DEBUG) return;
   const lines = [];
   lines.push(`모드: ${MOCK ? "가짜 위치(mock)" : "GPS"}`);
   if (me) {
@@ -290,7 +297,7 @@ function resetFound() {
 
 function startMock() {
   showToast("가짜 위치 모드: 지도를 눌러 위치를 옮기세요");
-  debugEl.classList.remove("collapsed");
+  if (DEBUG) debugEl.classList.remove("collapsed");
   map.on("click", (e) => updateMe(e.latlng.lat, e.latlng.lng, 5));
 }
 
