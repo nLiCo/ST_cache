@@ -1,40 +1,30 @@
 // 장소 데이터 (프로토타입용 하드코딩)
-// TODO: CAMPUS_CENTER와 각 장소의 lat/lng를 실제 캠퍼스 좌표로 바꾼다.
-//       구글 지도에서 지점을 우클릭(PC)하거나 길게 누르면(폰) "위도, 경도"가 나온다.
-//       현장에서 디버그 패널에 뜨는 현재 좌표를 적어 넣으면 더 정확하다.
+// lat/lng는 tools/photos.py가 사진 EXIF에서 읽어 채운다. 손으로 고치지 않는다.
+// 장소를 추가하려면 원본 사진을 images/originals/에 넣고, 아래에 장소를 만들어
+// photo를 "images/<원본 파일 이름>"으로 적은 뒤 python tools/photos.py를 실행한다.
 
-const CAMPUS_CENTER = { lat: 37.5665, lng: 126.9780 }; // 플레이스홀더
+const CAMPUS_CENTER = { lat: 37.62898, lng: 127.07931 }; // 두 장소의 가운데
 const DEFAULT_ZOOM = 17;
 
 const PLACES = [
   {
     id: "place-1",
-    name: "장소 1 (이름 미정)",
-    lat: 37.5671,
-    lng: 126.9772,
+    name: "돌계단 (이름 미정)",
+    lat: 37.628861,
+    lng: 127.07721,
     radius: 25,
-    hint: "힌트를 적어 주세요. 예: 도서관 뒤편, 계단 옆 작은 정원.",
+    hint: "힌트를 적어 주세요.",
     story: "이 장소에 얽힌 이야기나 소개를 적어 주세요.",
-    photo: "images/placeholder-1.svg",
+    photo: "images/20261121_193253.jpg",
   },
   {
     id: "place-2",
-    name: "장소 2 (이름 미정)",
-    lat: 37.5660,
-    lng: 126.9790,
+    name: "실내 방 (이름 미정)",
+    lat: 37.629092,
+    lng: 127.081405,
     radius: 25,
     hint: "힌트를 적어 주세요.",
     story: "이 장소에 얽힌 이야기나 소개를 적어 주세요.",
-    photo: "images/placeholder-2.svg",
-  },
-  {
-    id: "place-3",
-    name: "장소 3 (이름 미정)",
-    lat: 37.5658,
-    lng: 126.9768,
-    radius: 25,
-    hint: "힌트를 적어 주세요.",
-    story: "이 장소에 얽힌 이야기나 소개를 적어 주세요.",
-    photo: "images/placeholder-3.svg",
+    photo: "images/20261121_200335.jpg",
   },
 ];
