@@ -57,12 +57,16 @@ def save_stripped(img, dest):
 
 
 def set_place_coords(js, photo_path, lat, lng):
-    """photo가 photo_path인 장소 블록의 lat, lng를 바꾼다. 못 찾으면 None."""
+    """photo가 photo_path인 장소 블록의 lat, lng를 바꾼다.
+
+    못 찾으면 None, 현장에서 고친 좌표(manualCoords: true)라 그대로 두면 "manual"."""
     pattern = re.compile(r"\{[^{}]*?photo:\s*\"" + re.escape(photo_path) + r"\"[^{}]*?\}")
     m = pattern.search(js)
     if not m:
         return None
     block = m.group(0)
+    if re.search(r"manualCoords:\s*true", block):
+        return "manual"
     block = re.sub(r"lat:\s*-?[\d.]+", f"lat: {lat}", block, count=1)
     block = re.sub(r"lng:\s*-?[\d.]+", f"lng: {lng}", block, count=1)
     return js[: m.start()] + block + js[m.end():]
@@ -72,7 +76,9 @@ def main():
     if not ORIGINALS.is_dir():
         sys.exit(f"원본 폴더가 없습니다: {ORIGINALS}")
 
-    js = PLACES_JS.read_text(encoding="utf-8")
+    # 줄바꿈(LF/CRLF)을 그대로 유지하려고 newline=""로 읽고 쓴다.
+    with open(PLACES_JS, encoding="utf-8", newline="") as f:
+        js = f.read()
     problems = 0
 
     for src in sorted(ORIGINALS.iterdir()):
@@ -98,10 +104,16 @@ def main():
             problems += 1
             continue
 
+        if updated == "manual":
+            print(f"[유지] {src.name}: manualCoords라서 좌표를 바꾸지 않았습니다 "
+                  f"(사진 좌표 {coords[0]}, {coords[1]})")
+            continue
+
         js = updated
         print(f"[완료] {src.name}: {coords[0]}, {coords[1]} → {photo_path}")
 
-    PLACES_JS.write_text(js, encoding="utf-8")
+    with open(PLACES_JS, "w", encoding="utf-8", newline="") as f:
+        f.write(js)
     if problems:
         sys.exit(1)
 
