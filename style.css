@@ -127,6 +127,11 @@ html, body {
 #card .hint { background: #f3f1ea; padding: 10px 12px; border-radius: 8px; }
 #card img { width: 100%; max-height: 40vh; object-fit: cover; border-radius: 10px; margin: 6px 0 10px; }
 #card .story { line-height: 1.6; }
+#card .uploader { margin-top: 10px; font-size: 13px; color: #666; }
+#card .link {
+  border: none; background: none; padding: 0;
+  color: #1f6fd1; font: inherit; text-decoration: underline; cursor: pointer;
+}
 #card .confirm {
   display: block;
   width: 100%;
@@ -166,6 +171,35 @@ html, body {
 }
 #debug-body { padding: 0 10px 8px; white-space: pre; }
 #debug.collapsed #debug-body { display: none; }
+
+/* 닉네임 정하기 창 */
+#nickname-dialog {
+  width: min(340px, calc(100% - 32px));
+  border: none;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.3);
+}
+#nickname-dialog::backdrop { background: rgba(0,0,0,.4); }
+#nickname-dialog h2 { margin: 0 0 6px; font-size: 18px; }
+#nickname-dialog p { margin: 0 0 12px; font-size: 14px; color: #555; line-height: 1.5; }
+#nickname-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #bbb;
+  border-radius: 8px;
+  font: inherit; font-size: 16px;
+}
+#nickname-error { min-height: 20px; margin-top: 6px; font-size: 13px; color: #c0392b; }
+#nickname-dialog .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+#nickname-dialog .actions button {
+  padding: 8px 14px;
+  border: 1px solid #1f3b2d;
+  border-radius: 8px;
+  background: #fff; color: #1f3b2d;
+  font: inherit;
+}
+#nickname-dialog .actions button[type="submit"] { background: #1f3b2d; color: #fff; }
 
 #toast {
   position: fixed;

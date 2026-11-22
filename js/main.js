@@ -1,23 +1,34 @@
-// 시작점. 지금은 공통 상단의 로그인 버튼만 맡는다.
-// 프로토타입(app.js)을 화면별 모듈로 옮기면서 라우팅 등을 여기로 더한다.
-import { signIn, signOut, onAuthChange } from "./auth.js";
+// 시작점: 공통 상단(로그인 버튼, 닉네임)과 각 화면을 켠다.
+// 등록·랭킹 화면이 생기면 해시 라우팅(#explore, #upload, #rank)을 여기에 더한다.
+import { signIn, signOut, onAuthChange, openNicknameDialog } from "./auth.js";
+import { initExplore } from "./explore.js";
+import { initDebug } from "./debug.js";
 
-const box = document.getElementById("account");
+const account = document.getElementById("account");
 
-onAuthChange((user) => {
-  box.replaceChildren();
-  const button = document.createElement("button");
-  button.type = "button";
-  if (user) {
-    // 닉네임은 profiles 테이블이 생기면 바꾼다. 지금은 이메일 앞부분.
-    const name = document.createElement("span");
-    name.textContent = user.email.split("@")[0];
-    button.textContent = "로그아웃";
-    button.addEventListener("click", () => signOut());
-    box.append(name, button);
-  } else {
-    button.textContent = "로그인";
-    button.addEventListener("click", () => signIn());
-    box.append(button);
+function button(label, onClick) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.textContent = label;
+  b.addEventListener("click", onClick);
+  return b;
+}
+
+onAuthChange(({ user, profile }) => {
+  account.replaceChildren();
+  if (!user) {
+    account.append(button("로그인", () => signIn()));
+    return;
   }
+  if (profile?.nickname) {
+    const name = document.createElement("span");
+    name.textContent = profile.nickname;
+    account.append(name);
+  } else {
+    account.append(button("닉네임 정하기", () => openNicknameDialog()));
+  }
+  account.append(button("로그아웃", () => signOut()));
 });
+
+initExplore();
+initDebug();

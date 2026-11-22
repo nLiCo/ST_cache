@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <title>ST_cache — 캠퍼스 지오캐싱 프로토타입</title>
+  <title>ST_cache — 캠퍼스 숨은 장소 찾기</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -28,11 +28,23 @@
     <div id="card-content"></div>
   </section>
 
+  <dialog id="nickname-dialog">
+    <form id="nickname-form">
+      <h2>닉네임 정하기</h2>
+      <p>다른 사람에게는 이 닉네임만 보여요. 장소 카드와 랭킹에 나옵니다.</p>
+      <input id="nickname-input" type="text" minlength="2" maxlength="12"
+             placeholder="2~12자" autocomplete="off" required>
+      <div id="nickname-error"></div>
+      <div class="actions">
+        <button type="button" id="nickname-cancel">나중에</button>
+        <button type="submit">정하기</button>
+      </div>
+    </form>
+  </dialog>
+
   <div id="toast" hidden></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="places.js"></script>
-  <script src="app.js"></script>
   <script type="module" src="js/main.js"></script>
 </body>
 </html>

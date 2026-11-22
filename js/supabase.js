@@ -3,3 +3,8 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 import { SUPABASE_URL, SUPABASE_KEY } from "./config.js";
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// photos 버킷에 있는 사진의 공개 주소.
+export function photoUrl(path) {
+  return supabase.storage.from("photos").getPublicUrl(path).data.publicUrl;
+}
