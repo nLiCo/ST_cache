@@ -41,6 +41,17 @@ export function initExplore() {
   onAuthChange(() => loadPlaces());
 }
 
+// 탐색 화면 보이기/숨기기. 숨겼다 다시 보이면 Leaflet이 칸 크기를 잘못 알고 있어서 다시 재게 한다.
+export function setExploreVisible(visible) {
+  document.getElementById("map").hidden = !visible;
+  strip.hidden = !visible;
+  if (visible) map.invalidateSize();
+  else closeCard();
+}
+
+// 다른 화면(등록)에서 장소가 늘었을 때 다시 읽는다.
+export const reloadPlaces = () => loadPlaces();
+
 async function loadPlaces() {
   const { data, error } = await supabase
     .from("public_places").select("*").order("created_at").order("id");

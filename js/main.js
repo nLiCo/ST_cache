@@ -1,7 +1,6 @@
-// 시작점: 공통 상단(로그인 버튼, 닉네임)과 각 화면을 켠다.
-// 등록·랭킹 화면이 생기면 해시 라우팅(#explore, #upload, #rank)을 여기에 더한다.
+// 시작점: 공통 상단(로그인 버튼, 닉네임, 화면 메뉴), 해시 라우팅(#explore, #upload), 각 화면 켜기.
 import { signIn, signOut, onAuthChange, openNicknameDialog } from "./auth.js";
-import { initExplore } from "./explore.js";
+import { initExplore, setExploreVisible } from "./explore.js";
 import { initDebug } from "./debug.js";
 
 const account = document.getElementById("account");
@@ -30,5 +29,19 @@ onAuthChange(({ user, profile }) => {
   account.append(button("로그아웃", () => signOut()));
 });
 
+// ---------- 해시 라우팅 ----------
+
+function route() {
+  const screen = location.hash === "#upload" ? "upload" : "explore";
+  setExploreVisible(screen === "explore");
+  document.getElementById("upload").hidden = screen !== "upload";
+  for (const a of document.querySelectorAll("#menu a")) {
+    if (a.hash === `#${screen}`) a.setAttribute("aria-current", "page");
+    else a.removeAttribute("aria-current");
+  }
+}
+
 initExplore();
 initDebug();
+window.addEventListener("hashchange", route);
+route();

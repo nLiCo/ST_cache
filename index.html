@@ -10,6 +10,10 @@
 <body>
   <header id="topbar">
     <span id="title">ST_cache</span>
+    <nav id="menu">
+      <a href="#explore">탐색</a>
+      <a href="#upload">등록</a>
+    </nav>
     <span id="progress">찾은 장소 0 / 0</span>
     <span id="account"></span>
   </header>
@@ -27,6 +31,8 @@
     <button id="card-close" type="button" aria-label="닫기">×</button>
     <div id="card-content"></div>
   </section>
+
+  <section id="upload" hidden></section>
 
   <dialog id="nickname-dialog">
     <form id="nickname-form">
