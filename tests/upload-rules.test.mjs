@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   MAX_UPLOAD_ACCURACY_M, positionStatus, photoTakenAt, isFreshPhoto,
-  fitSize, photoPath, validateFields, placeRow, uploadNotice,
+  fitSize, decodePhoto, photoPath, validateFields, placeRow, uploadNotice,
 } from "../js/upload-rules.js";
 
 test("사진 찍기 정확도 기준은 30m", () => assert.equal(MAX_UPLOAD_ACCURACY_M, 30));
@@ -35,7 +35,24 @@ test("fitSize: 긴 변 1280, 키우지 않음", () => {
   assert.deepEqual(fitSize(800, 600), { width: 800, height: 600 });
 });
 
-test("photoPath", () => assert.equal(photoPath("u1", "abc"), "u1/abc.jpg"));
+test("decodePhoto: 방향 옵션을 모르는 브라우저면 옵션 없이 다시 연다", async () => {
+  const calls = [];
+  const old = async (file, opts) => {
+    calls.push(opts);
+    if (opts) throw new TypeError("imageOrientation 모름");
+    return "bitmap";
+  };
+  assert.equal(await decodePhoto("f", old), "bitmap");
+  assert.deepEqual(calls, [{ imageOrientation: "from-image" }, undefined]);
+});
+
+test("decodePhoto: 옵션이 되면 한 번만 부른다", async () => {
+  let n = 0;
+  assert.equal(await decodePhoto("f", async () => (n++, "bm")), "bm");
+  assert.equal(n, 1);
+});
+
+test("photoPath",() => assert.equal(photoPath("u1", "abc"), "u1/abc.jpg"));
 
 test("validateFields", () => {
   assert.equal(validateFields({ name: "   ", hint: "", story: "" }), "이름을 적어 주세요.");

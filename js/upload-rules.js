@@ -28,6 +28,17 @@ export function fitSize(width, height, maxSide = MAX_PHOTO_SIDE) {
   return { width: Math.round(width * scale), height: Math.round(height * scale) };
 }
 
+// 사진을 그림으로 연다. createBitmap은 브라우저의 createImageBitmap(테스트에서는 가짜).
+// 사진 방향(EXIF Orientation)을 따르라는 옵션을 모르는 옛 브라우저는 오류를 내므로,
+// 그때는 옵션 없이 다시 연다(요즘 규격은 옵션이 없어도 사진 방향을 따른다).
+export async function decodePhoto(file, createBitmap) {
+  try {
+    return await createBitmap(file, { imageOrientation: "from-image" });
+  } catch {
+    return createBitmap(file);
+  }
+}
+
 // 버킷 안 사진 경로. 첫 폴더가 내 id여야 DB 트리거와 버킷 정책을 통과한다.
 export function photoPath(userId, id) {
   return `${userId}/${id}.jpg`;

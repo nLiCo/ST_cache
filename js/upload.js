@@ -8,7 +8,7 @@ import { getPosition, hasFreshPosition, onPosition, MOCK } from "./geo.js";
 import { reloadPlaces } from "./explore.js";
 import { showToast } from "./ui.js";
 import {
-  positionStatus, photoTakenAt, isFreshPhoto, fitSize, photoPath,
+  positionStatus, photoTakenAt, isFreshPhoto, fitSize, decodePhoto, photoPath,
   validateFields, placeRow, uploadNotice,
 } from "./upload-rules.js";
 
@@ -149,7 +149,7 @@ function resetForm() {
 
 // 긴 변 1280px 이하로 줄여 JPEG로 다시 저장한다. 새로 그린 그림이라 EXIF(위치 포함)가 남지 않는다.
 async function shrink(file) {
-  const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+  const bitmap = await decodePhoto(file, (f, opts) => createImageBitmap(f, opts));
   const { width, height } = fitSize(bitmap.width, bitmap.height);
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -175,14 +175,17 @@ async function onSubmit(e) {
   submitButton.textContent = "올리는 중…";
   renderSubmit();
   renderPosition();
+  // 올리는 동안 다른 탭에서 계정이 바뀌면 resetForm이 모듈 변수를 비우므로 값을 미리 떼어 둔다.
+  const { user, profile } = getAuth();
+  const file = photo;
+  const pin = pinned;
   try {
-    const { user, profile } = getAuth();
-    const blob = await shrink(photo);
+    const blob = await shrink(file);
     const path = photoPath(user.id, crypto.randomUUID());
     const upload = await supabase.storage.from("photos").upload(path, blob, { contentType: "image/jpeg" });
     if (upload.error) throw upload.error;
     // .select()를 붙이지 않는다. places를 읽을 권한이 없어서 붙이면 실패한다.
-    const insert = await supabase.from("places").insert(placeRow(values, pinned, path));
+    const insert = await supabase.from("places").insert(placeRow(values, pin, path));
     if (insert.error) throw insert.error;
     showToast(uploadNotice(profile.role));
     resetForm();
