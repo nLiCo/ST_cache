@@ -7,7 +7,11 @@ import { startTracking, getPosition, hasFreshPosition, onPosition } from "./geo.
 import { showToast, escapeHtml } from "./ui.js";
 
 const CAMPUS_CENTER = [37.63237, 127.0789];
+// 지도를 끌고 갈 수 있는 범위. OSM의 캠퍼스 경계 사각형에 사방 약 150m 여유를 둔다
+// (가장자리 별·카드가 잘리지 않게). 장소 좌표로 계산하지 않는다.
+const CAMPUS_BOUNDS = [[37.6268, 127.0736], [37.6379, 127.0848]];
 const DEFAULT_ZOOM = 17;
+const MIN_ZOOM = 16;
 const HIDDEN_NAME = "???";
 
 let map;
@@ -20,7 +24,12 @@ const cardContent = document.getElementById("card-content");
 const strip = document.getElementById("strip");
 
 export function initExplore() {
-  map = L.map("map", { zoomControl: false }).setView(CAMPUS_CENTER, DEFAULT_ZOOM);
+  map = L.map("map", {
+    zoomControl: false,
+    maxBounds: CAMPUS_BOUNDS,
+    maxBoundsViscosity: 1.0,
+    minZoom: MIN_ZOOM,
+  }).setView(CAMPUS_CENTER, DEFAULT_ZOOM);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
     attribution: "&copy; OpenStreetMap contributors",
