@@ -3,3 +3,4 @@ __pycache__/
 *.bundle
 .claude/
 supabase/seed.local.sql
+images/upload/
