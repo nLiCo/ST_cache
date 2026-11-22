@@ -148,7 +148,20 @@ SPEC.md                 이 문서
 - 사진 버킷: 누구나 읽기. 로그인한 사람은 자기 폴더(`<user id>/`)에만 올린다.
 
 ### 관리자 작업 (Supabase 대시보드)
-- 승인 / 반려: `places.status`를 바꾼다.
+- 승인 / 반려: `places.status`를 바꾼다. Table Editor에서는 사진이 경로로만 보이므로 SQL Editor에서 아래로 확인한다.
+  ```sql
+  -- 승인 대기 목록 (사진 링크, 지도 링크 포함)
+  select id, name, hint, story, round(accuracy) as accuracy_m, created_at,
+    'https://ipjrpkejnnkyxwmdoerf.supabase.co/storage/v1/object/public/photos/' || photo_path as photo_url,
+    'https://www.google.com/maps?q=' || lat || ',' || lng as map_url
+  from places
+  where status = 'pending'
+  order by created_at;
+
+  -- 승인 (반려는 'rejected')
+  update places set status = 'approved' where id = '여기에-id';
+  ```
+- 사이트 안 승인 화면(관리자에게만 보이는 메뉴, DB 함수에서 관리자 검사)은 테스트 기간에 장소가 얼마나 올라오는지 보고 정한다.
 - 수정·삭제: `places`를 직접 고친다. 수정·삭제는 관리자만 한다.
 - 등급 부여: 지인 계정의 `profiles.role`을 `trusted`로 바꾼다. 이 계정이 올린 장소는 바로 공개된다.
 
