@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   MAX_UPLOAD_ACCURACY_M, positionStatus, photoTakenAt, isFreshPhoto,
-  fitSize, decodePhoto, photoPath, validateFields, placeRow, uploadNotice,
+  fitSize, decodePhoto, photoPath, validateFields, placeRow, uploadNotice, uploadErrorMessage,
 } from "../js/upload-rules.js";
 
 test("사진 찍기 정확도 기준은 30m", () => assert.equal(MAX_UPLOAD_ACCURACY_M, 30));
@@ -66,6 +66,30 @@ test("placeRow: trim, 빈 칸은 null", () => {
   assert.deepEqual(
     placeRow({ name: " 돌계단 ", hint: "  ", story: " 옛 길 " }, { lat: 1, lng: 2, accuracy: 3, time: 9 }, "u/p.jpg"),
     { name: "돌계단", hint: null, story: "옛 길", photo_path: "u/p.jpg", lat: 1, lng: 2, accuracy: 3 });
+});
+
+const NETWORK_MSG = "서버와 연결이 잠시 불안정해요. 잠시 후 다시 등록해 주세요.";
+
+test("uploadErrorMessage: 서버 5xx(예: Cloudflare 520)는 잠시 후 다시", () => {
+  assert.equal(uploadErrorMessage({ status: 520, message: "<!DOCTYPE html>..." }), NETWORK_MSG);
+  assert.equal(uploadErrorMessage({ status: 503, message: "x" }), NETWORK_MSG);
+});
+
+test("uploadErrorMessage: 상태 코드 없이 끊긴 경우(HTML 본문, 브라우저 연결 오류)도 잠시 후 다시", () => {
+  assert.equal(uploadErrorMessage({ message: "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON" }), NETWORK_MSG);
+  assert.equal(uploadErrorMessage({ name: "StorageUnknownError", message: "Failed to fetch" }), NETWORK_MSG);
+  assert.equal(uploadErrorMessage({ message: "Load failed" }), NETWORK_MSG);
+  assert.equal(uploadErrorMessage({ message: "NetworkError when attempting to fetch resource." }), NETWORK_MSG);
+});
+
+test("uploadErrorMessage: DB가 위치 정확도로 거절", () => {
+  assert.equal(uploadErrorMessage({ status: 400, code: "P0001", message: "위치 정확도가 30m보다 나빠요" }),
+    "위치 정확도가 나빠 등록하지 못했어요. 하늘이 보이는 곳에서 다시 찍어 주세요.");
+});
+
+test("uploadErrorMessage: 그 밖의 오류는 원래 문구를 붙인다", () => {
+  assert.equal(uploadErrorMessage({ status: 400, message: "닉네임을 먼저 정해 주세요" }),
+    "올리지 못했어요 (닉네임을 먼저 정해 주세요)");
 });
 
 test("uploadNotice", () => {

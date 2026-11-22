@@ -9,7 +9,7 @@ import { reloadPlaces } from "./explore.js";
 import { showToast } from "./ui.js";
 import {
   positionStatus, photoTakenAt, isFreshPhoto, fitSize, decodePhoto, photoPath,
-  validateFields, placeRow, uploadNotice,
+  validateFields, placeRow, uploadNotice, uploadErrorMessage,
 } from "./upload-rules.js";
 
 const JPEG_QUALITY = 0.85;
@@ -186,12 +186,13 @@ async function onSubmit(e) {
     if (upload.error) throw upload.error;
     // .select()를 붙이지 않는다. places를 읽을 권한이 없어서 붙이면 실패한다.
     const insert = await supabase.from("places").insert(placeRow(values, pin, path));
-    if (insert.error) throw insert.error;
+    // insert 오류에는 HTTP 상태가 없어서(응답 쪽에만 있음) 붙여서 던진다.
+    if (insert.error) throw { ...insert.error, status: insert.status };
     showToast(uploadNotice(profile.role));
     resetForm();
     reloadPlaces();
   } catch (err) {
-    showError(`올리지 못했어요 (${err.message})`);
+    showError(uploadErrorMessage(err));
   } finally {
     busy = false;
     submitButton.textContent = "등록하기";

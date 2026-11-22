@@ -67,6 +67,21 @@ export function placeRow({ name, hint, story }, pinned, path) {
   };
 }
 
+// 등록 실패 안내. err는 Supabase 오류({ status?, name?, code?, message }).
+// 서버·네트워크 문제(Cloudflare 520 같은 5xx, HTML 본문, 연결 끊김)는 다시 누르면 되는 경우가 많다.
+const NETWORK_ERROR = /failed to fetch|load failed|networkerror|<!doctype|<html|not valid json|unexpected token/i;
+
+export function uploadErrorMessage(err) {
+  const message = String(err?.message ?? "");
+  if (message.includes("위치 정확도")) {
+    return "위치 정확도가 나빠 등록하지 못했어요. 하늘이 보이는 곳에서 다시 찍어 주세요.";
+  }
+  if (Number(err?.status) >= 500 || err?.name === "StorageUnknownError" || NETWORK_ERROR.test(message)) {
+    return "서버와 연결이 잠시 불안정해요. 잠시 후 다시 등록해 주세요.";
+  }
+  return `올리지 못했어요 (${message})`;
+}
+
 // 등록 후 안내. 신뢰·관리자 계정은 DB 트리거가 바로 승인한다.
 export function uploadNotice(role) {
   return role === "trusted" || role === "admin"
