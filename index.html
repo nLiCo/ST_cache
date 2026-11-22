@@ -32,7 +32,35 @@
     <div id="card-content"></div>
   </section>
 
-  <section id="upload" hidden></section>
+  <section id="upload" hidden>
+    <div id="upload-gate"></div>
+    <form id="upload-form" novalidate hidden>
+      <h2>장소 올리기</h2>
+      <p class="help">올리고 싶은 자리에 서서 사진을 찍어 주세요. 사진 찍기 버튼을 누르는 순간의 위치가 장소 위치가 돼요.</p>
+      <div id="upload-accuracy"></div>
+      <div id="upload-wait" class="warn" hidden>이 자리에 서서 잠시 기다려 주세요</div>
+      <button type="button" id="upload-camera" class="primary">📷 사진 찍기</button>
+      <input type="file" id="upload-file" accept="image/*" capture="environment" hidden>
+      <div id="upload-photo" hidden>
+        <img id="upload-preview" alt="찍은 사진">
+        <div id="upload-pinned"></div>
+      </div>
+      <label>이름 (필수)
+        <input id="upload-name" type="text" maxlength="30" autocomplete="off">
+        <span class="count" data-for="upload-name" data-max="30"></span>
+      </label>
+      <label>힌트 (선택)
+        <input id="upload-hint" type="text" maxlength="100" autocomplete="off">
+        <span class="count" data-for="upload-hint" data-max="100"></span>
+      </label>
+      <label>이야기 (선택, 찾은 사람에게만 보여요)
+        <textarea id="upload-story" rows="4" maxlength="500"></textarea>
+        <span class="count" data-for="upload-story" data-max="500"></span>
+      </label>
+      <div id="upload-error" role="alert"></div>
+      <button type="submit" id="upload-submit" class="primary">등록하기</button>
+    </form>
+  </section>
 
   <dialog id="nickname-dialog">
     <form id="nickname-form">

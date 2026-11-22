@@ -54,9 +54,11 @@ js/
   geo.js                위치 추적, 가짜 위치 모드
   explore.js            ① 탐색 화면 (지도, 사진 띠, 장소 카드, 확인 버튼)
   upload.js             ② 장소 등록 화면
+  upload-rules.js       등록 판단 규칙(위치 상태, 사진 시각, 크기, 입력 검사). import 없는 순수 함수라 Node로 테스트한다
   rank.js               ③ 랭킹 / 내 정보 화면
   debug.js              디버그 패널
   ui.js                 여러 화면이 같이 쓰는 도구 (토스트, HTML 이스케이프)
+tests/                  순수 함수 테스트. 실행: node --test "tests/*.test.mjs"
 supabase/migrations/    DB 스키마, 함수, 권한 규칙 (SQL)
 supabase/seed.local.sql 기존 12곳 이전용 SQL (좌표가 있어 커밋하지 않음)
 README.md               실행 방법, Supabase 설정 방법

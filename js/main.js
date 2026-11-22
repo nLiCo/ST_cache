@@ -1,6 +1,7 @@
 // 시작점: 공통 상단(로그인 버튼, 닉네임, 화면 메뉴), 해시 라우팅(#explore, #upload), 각 화면 켜기.
 import { signIn, signOut, onAuthChange, openNicknameDialog } from "./auth.js";
 import { initExplore, setExploreVisible } from "./explore.js";
+import { initUpload, setUploadVisible } from "./upload.js";
 import { initDebug } from "./debug.js";
 
 const account = document.getElementById("account");
@@ -34,7 +35,7 @@ onAuthChange(({ user, profile }) => {
 function route() {
   const screen = location.hash === "#upload" ? "upload" : "explore";
   setExploreVisible(screen === "explore");
-  document.getElementById("upload").hidden = screen !== "upload";
+  setUploadVisible(screen === "upload");
   for (const a of document.querySelectorAll("#menu a")) {
     if (a.hash === `#${screen}`) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
@@ -42,6 +43,7 @@ function route() {
 }
 
 initExplore();
+initUpload();
 initDebug();
 window.addEventListener("hashchange", route);
 route();
