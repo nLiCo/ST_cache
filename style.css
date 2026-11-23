@@ -85,7 +85,7 @@ html, body {
 
 /* ---------- 화면 배치 ----------
    body[data-screen]: photos(사진 격자) / place(사진 상세) / map(지도) / upload(등록). main.js가 정한다.
-   모바일(기본): 한 번에 한 화면 + 아래 탭. PC(900px 이상): 지도 + 오른쪽 사진 패널, 탭·미니맵 숨김. */
+   모바일(기본): 한 번에 한 화면 + 아래 탭. PC(900px 이상): 지도 + 오른쪽 사진 패널, 탭 숨김. */
 #map, #photos { display: none; }
 body[data-screen="map"] #map { display: block; }
 body[data-screen="photos"] #photos,
@@ -159,7 +159,7 @@ body[data-screen="place"] #detail { display: flex; }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-/* 사진 상세: 맨 위 ← 줄, 가운데 사진·힌트(길면 스크롤), 아래 미니맵·확인 버튼 */
+/* 사진 상세: 맨 위 ← 줄, 가운데 사진·힌트(길면 스크롤), 아래 확인 버튼 */
 #detail { flex-direction: column; height: 100%; }
 #detail-head {
   display: flex; align-items: center; gap: 8px;
@@ -188,19 +188,7 @@ body[data-screen="place"] #detail { display: flex; }
 #detail .story { line-height: 1.6; }
 #detail .uploader { margin-top: 8px; font-size: 13px; color: #666; }
 #detail-actions { padding: 8px 12px 10px; border-top: 1px solid #eee; }
-#detail-row { display: flex; align-items: stretch; gap: 12px; }
-#minimap-wrap { position: relative; flex: none; width: 84px; text-align: center; }
-#minimap {
-  width: 84px; height: 84px;
-  border-radius: 50%;
-  border: 3px solid #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,.35);
-  overflow: hidden;
-  cursor: pointer;
-}
-.mini-star { color: #e0a526; font-size: 14px; line-height: 14px; text-shadow: 0 0 2px #fff; }
-#minimap-wrap .osm { display: block; margin-top: 2px; font-size: 9px; color: #888; white-space: nowrap; }
-#detail-action { flex: 1; display: flex; }
+#detail-action { display: flex; min-height: 64px; }
 #detail .confirm {
   flex: 1;
   border: none;
@@ -233,7 +221,7 @@ body[data-screen="place"] #detail { display: flex; }
 
 /* PC: 큰 지도 + 오른쪽 패널 */
 @media (min-width: 900px) {
-  #tabs, #minimap-wrap { display: none; }
+  #tabs { display: none; }
   #menu { display: flex; }
   body[data-screen="photos"] #map,
   body[data-screen="place"] #map,
@@ -243,7 +231,6 @@ body[data-screen="place"] #detail { display: flex; }
   #photos { bottom: 0; left: auto; width: 380px; border-left: 1px solid #ddd; }
   #upload { bottom: 0; }
   #grid { grid-template-columns: repeat(3, 1fr); }
-  #detail-action { min-height: 56px; }
 }
 
 /* 장소 마커 */

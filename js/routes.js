@@ -24,6 +24,12 @@ export function restoreHash(saved, current) {
   return parseRoute(current).screen === "photos" ? saved : null;
 }
 
+// 모바일 [사진] 탭이 가리킬 주소. 지도·등록에 다녀오면 보던 상세(lastPhotosHash)로 돌아가고,
+// 사진 화면 안에서 다시 누르면 격자로 간다(앱의 탭을 다시 누르면 처음 화면으로 가는 것처럼).
+export function photosTabHash(screen, lastPhotosHash) {
+  return screen === "photos" || screen === "place" ? "#photos" : lastPhotosHash;
+}
+
 function safeDecode(s) {
   try {
     return decodeURIComponent(s);

@@ -6,7 +6,6 @@ import { supabase, photoUrl } from "./supabase.js";
 import { getAuth, onAuthChange, hasNickname, signIn } from "./auth.js";
 import { startTracking, getPosition, hasFreshPosition, onPosition } from "./geo.js";
 import { placeHash } from "./routes.js";
-import { initMinimap, drawStars, refreshMinimap } from "./minimap.js";
 import { showToast, escapeHtml } from "./ui.js";
 
 export const CAMPUS_CENTER = [37.63237, 127.0789];
@@ -26,7 +25,8 @@ const placesListeners = [];
 
 let started = false;    // 첫 주소를 처리했는지(링크로 바로 들어온 상세와 앱 안에서 연 상세를 가른다)
 let backToGrid = false; // 지금 상세를 격자에서 열었는지. 그렇다면 ← 는 history.back()
-let gridScroll = 0;     // 격자 스크롤 위치. 상세가 보이는 동안 패널 높이가 줄어 0으로 잘리므로 따로 기억한다
+let renderedPlaceId = null; // 상세에 지금 그려져 있는 장소
+let gridScroll = 0;    // 격자 스크롤 위치. 상세가 보이는 동안 패널 높이가 줄어 0으로 잘리므로 따로 기억한다
 
 const mapEl = document.getElementById("map");
 const photosPanel = document.getElementById("photos");
@@ -53,9 +53,6 @@ export function initExplore() {
   onPosition(drawMe);
   startTracking(map);
 
-  initMinimap(document.getElementById("minimap"));
-  onPlacesChange(drawStars);
-
   detail.addEventListener("click", onDetailClick);
   photosPanel.addEventListener("scroll", () => {
     if (route.screen === "photos") gridScroll = photosPanel.scrollTop;
@@ -76,28 +73,28 @@ export function initExplore() {
 
 // main.js가 주소가 바뀔 때마다 부른다. body의 data-screen은 이미 바뀐 상태다.
 export function showRoute(next) {
-  const placeChanged = next.placeId !== route.placeId;
-  if (next.screen === "place" && placeChanged) backToGrid = started && route.screen === "photos";
+  const entering = next.screen === "place" && (route.screen !== "place" || next.placeId !== route.placeId);
+  if (entering) backToGrid = started && route.screen === "photos";
   route = next;
   started = true;
   if (route.screen === "photos") photosPanel.scrollTop = gridScroll; // 상세에서 돌아오면 보던 자리로
-  if (route.screen === "place" && (placeChanged || !detailContent.hasChildNodes())) renderDetail();
+  // 지도 탭에 다녀와 같은 장소로 돌아오면 다시 그리지 않는다(판정 문구, 스크롤 유지).
+  if (route.screen === "place" && route.placeId !== renderedPlaceId) renderDetail();
   fitMapIfVisible();
 }
 
 // 다른 화면(등록)에서 장소가 늘었을 때 다시 읽는다.
 export const reloadPlaces = () => loadPlaces();
 
-// 장소 목록을 새로 읽을 때마다 callback(places). 미니맵이 찾은 곳 별을 그리는 데 쓴다.
+// 장소 목록을 새로 읽을 때마다 callback(places).
 export function onPlacesChange(callback) {
   placesListeners.push(callback);
   if (loaded) callback(places);
 }
 
-// 숨어 있던 지도·미니맵이 보이게 되면 Leaflet이 칸 크기를 잘못 알고 있어서 다시 재게 한다.
+// 숨어 있던 지도가 보이게 되면 Leaflet이 칸 크기를 잘못 알고 있어서 다시 재게 한다.
 function fitMapIfVisible() {
   if (map && getComputedStyle(mapEl).display !== "none") map.invalidateSize();
-  if (route.screen === "place") refreshMinimap();
 }
 
 async function loadPlaces() {
@@ -183,6 +180,7 @@ function renderDetail() {
   const place = findPlace(route.placeId);
   if (!place) {
     detailContent.replaceChildren();
+    renderedPlaceId = null;
     location.replace("#photos"); // 기록을 쌓으면 뒤로 가기가 이 주소로 돌아와 다시 튕기기를 되풀이한다
     showToast("장소를 찾을 수 없어요");
     return;
@@ -207,7 +205,8 @@ function renderDetail() {
     detailContent.innerHTML = `${photo}${hint}${uploader}`;
     detailAction.innerHTML = '<button type="button" class="confirm" data-action="confirm">📍 여기가 맞나 확인</button>';
   }
-  detailContent.scrollTop = 0;
+  if (renderedPlaceId !== place.id) detailContent.scrollTop = 0;
+  renderedPlaceId = place.id;
 }
 
 // ---------- 확인 버튼 ----------

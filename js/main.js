@@ -2,7 +2,7 @@
 // 주소는 routes.js가 해석하고, 화면 이름을 body의 data-screen에 넣으면 style.css가 보일 요소를 정한다.
 import { signIn, signOut, onAuthChange, openNicknameDialog } from "./auth.js";
 import { initExplore, showRoute } from "./explore.js";
-import { parseRoute } from "./routes.js";
+import { parseRoute, photosTabHash } from "./routes.js";
 import { initUpload, setUploadVisible } from "./upload.js";
 import { initDebug } from "./debug.js";
 
@@ -38,11 +38,16 @@ onAuthChange(({ user, profile }) => {
 const TAB_FOR = { photos: "photos", place: "photos", map: "map", upload: "upload" };
 const MENU_FOR = { photos: "photos", place: "photos", map: "photos", upload: "upload" };
 
+let lastPhotosHash = "#photos"; // 마지막으로 보던 사진 화면(격자 또는 상세)
+const photosTab = document.querySelector('#tabs a[data-for="photos"]');
+
 function route() {
   const r = parseRoute(location.hash);
   document.body.dataset.screen = r.screen;
+  if (r.screen === "photos" || r.screen === "place") lastPhotosHash = location.hash || "#photos";
   showRoute(r);
   setUploadVisible(r.screen === "upload");
+  photosTab.setAttribute("href", photosTabHash(r.screen, lastPhotosHash));
   markCurrent("#tabs a", TAB_FOR[r.screen]);
   markCurrent("#menu a", MENU_FOR[r.screen]);
 }
