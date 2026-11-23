@@ -198,6 +198,7 @@ body[data-screen="place"] #detail { display: flex; }
   overflow: hidden;
   cursor: pointer;
 }
+.mini-star { color: #e0a526; font-size: 14px; line-height: 14px; text-shadow: 0 0 2px #fff; }
 #minimap-wrap .osm { display: block; margin-top: 2px; font-size: 9px; color: #888; white-space: nowrap; }
 #detail-action { flex: 1; display: flex; }
 #detail .confirm {

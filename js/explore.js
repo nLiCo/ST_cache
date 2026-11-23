@@ -6,6 +6,7 @@ import { supabase, photoUrl } from "./supabase.js";
 import { getAuth, onAuthChange, hasNickname, signIn } from "./auth.js";
 import { startTracking, getPosition, hasFreshPosition, onPosition } from "./geo.js";
 import { placeHash } from "./routes.js";
+import { initMinimap, drawStars, refreshMinimap } from "./minimap.js";
 import { showToast, escapeHtml } from "./ui.js";
 
 export const CAMPUS_CENTER = [37.63237, 127.0789];
@@ -47,6 +48,9 @@ export function initExplore() {
   onPosition(drawMe);
   startTracking(map);
 
+  initMinimap(document.getElementById("minimap"));
+  onPlacesChange(drawStars);
+
   detail.addEventListener("click", onDetailClick);
   // 폰을 돌리거나 창 너비가 900px을 넘나들면 숨어 있던 지도가 새로 보일 수 있다.
   window.addEventListener("resize", fitMapIfVisible);
@@ -72,8 +76,10 @@ export function onPlacesChange(callback) {
   if (loaded) callback(places);
 }
 
+// 숨어 있던 지도·미니맵이 보이게 되면 Leaflet이 칸 크기를 잘못 알고 있어서 다시 재게 한다.
 function fitMapIfVisible() {
   if (map && getComputedStyle(mapEl).display !== "none") map.invalidateSize();
+  if (route.screen === "place") refreshMinimap();
 }
 
 async function loadPlaces() {
