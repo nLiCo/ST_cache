@@ -1,6 +1,21 @@
 // 구글 로그인 / 로그아웃, 내 프로필(닉네임, 등급), 닉네임 정하기 창.
 import { supabase } from "./supabase.js";
 import { showToast } from "./ui.js";
+import { restoreHash } from "./routes.js";
+
+// 로그인하러 가기 전 보던 주소(#place/… 등)를 맡겨 두는 자리. 구글 로그인 결과가 해시로 돌아와서
+// 돌아올 주소에 해시를 실을 수 없기 때문이다.
+const RETURN_KEY = "st_cache_return_hash";
+
+function takeReturnHash() {
+  try {
+    const saved = sessionStorage.getItem(RETURN_KEY);
+    sessionStorage.removeItem(RETURN_KEY);
+    return saved;
+  } catch {
+    return null;
+  }
+}
 
 // 지금 로그인 상태. profile은 { nickname, role } (닉네임은 정하기 전이면 null).
 let state = { ready: false, user: null, profile: null };
@@ -42,6 +57,8 @@ supabase.auth.onAuthStateChange((_event, session) => {
   setTimeout(async () => {
     const profile = user ? await loadProfile(user) : null;
     setState({ user, profile });
+    const back = restoreHash(takeReturnHash(), location.hash);
+    if (back) location.hash = back;
     if (user && profile && !profile.nickname) openNicknameDialog();
   }, 0);
 });
@@ -49,6 +66,11 @@ supabase.auth.onAuthStateChange((_event, session) => {
 export function signIn() {
   // 로그인 후 지금 보던 주소(?mock=1 같은 옵션 포함)로 돌아온다.
   const back = location.origin + location.pathname + location.search;
+  try {
+    sessionStorage.setItem(RETURN_KEY, location.hash);
+  } catch {
+    // 저장소를 못 쓰는 브라우저면 로그인 후 첫 화면으로 돌아온다.
+  }
   return supabase.auth.signInWithOAuth({
     provider: "google",
     options: { redirectTo: back },
