@@ -4,3 +4,4 @@ __pycache__/
 .claude/
 supabase/seed.local.sql
 images/upload/
+.superpowers/

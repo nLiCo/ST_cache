@@ -10,27 +10,42 @@
 <body>
   <header id="topbar">
     <span id="title">ST_cache</span>
-    <nav id="menu">
-      <a href="#explore">탐색</a>
-      <a href="#upload">등록</a>
+    <nav id="menu" aria-label="화면">
+      <a href="#photos" data-for="photos">탐색</a>
+      <a href="#upload" data-for="upload">등록</a>
     </nav>
     <span id="progress">찾은 장소 0 / 0</span>
     <span id="account"></span>
   </header>
 
+  <!-- 어떤 요소가 보일지는 body의 data-screen과 화면 너비(900px)로 style.css가 정한다 -->
   <div id="map"></div>
 
-  <nav id="strip" aria-label="찾을 장소 사진"></nav>
+  <section id="photos" aria-label="찾을 장소 사진">
+    <div id="grid"></div>
+    <div id="detail">
+      <div id="detail-head">
+        <a href="#photos" id="detail-back" aria-label="사진 목록으로">←</a>
+        <h2 id="detail-title"></h2>
+      </div>
+      <div id="detail-content"></div>
+      <div id="detail-actions">
+        <div class="check-result" hidden></div>
+        <div id="detail-action"></div>
+      </div>
+    </div>
+  </section>
+
+  <nav id="tabs" aria-label="화면">
+    <a href="#photos" data-for="photos">📷<span>사진</span></a>
+    <a href="#map" data-for="map">🗺<span>지도</span></a>
+    <a href="#upload" data-for="upload">➕<span>등록</span></a>
+  </nav>
 
   <aside id="debug" class="collapsed" hidden>
     <button id="debug-toggle" type="button">디버그</button>
     <div id="debug-body"></div>
   </aside>
-
-  <section id="card" hidden>
-    <button id="card-close" type="button" aria-label="닫기">×</button>
-    <div id="card-content"></div>
-  </section>
 
   <section id="upload" hidden>
     <div id="upload-gate"></div>
