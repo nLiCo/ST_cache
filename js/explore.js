@@ -24,7 +24,12 @@ let route = { screen: "photos", placeId: null };
 const markers = new Map();
 const placesListeners = [];
 
+let started = false;    // 첫 주소를 처리했는지(링크로 바로 들어온 상세와 앱 안에서 연 상세를 가른다)
+let backToGrid = false; // 지금 상세를 격자에서 열었는지. 그렇다면 ← 는 history.back()
+let gridScroll = 0;     // 격자 스크롤 위치. 상세가 보이는 동안 패널 높이가 줄어 0으로 잘리므로 따로 기억한다
+
 const mapEl = document.getElementById("map");
+const photosPanel = document.getElementById("photos");
 const grid = document.getElementById("grid");
 const detail = document.getElementById("detail");
 const detailTitle = document.getElementById("detail-title");
@@ -52,6 +57,16 @@ export function initExplore() {
   onPlacesChange(drawStars);
 
   detail.addEventListener("click", onDetailClick);
+  photosPanel.addEventListener("scroll", () => {
+    if (route.screen === "photos") gridScroll = photosPanel.scrollTop;
+  });
+  // ← : 격자에서 열었으면 기록을 하나 되돌린다(폰의 뒤로 가기가 다시 상세를 열지 않게).
+  // 링크·지도 별에서 바로 왔으면 지금 기록을 격자로 바꾼다(사이트 밖으로 나가지 않게).
+  document.getElementById("detail-back").addEventListener("click", (e) => {
+    e.preventDefault();
+    if (backToGrid) history.back();
+    else location.replace("#photos");
+  });
   // 폰을 돌리거나 창 너비가 900px을 넘나들면 숨어 있던 지도가 새로 보일 수 있다.
   window.addEventListener("resize", fitMapIfVisible);
 
@@ -62,7 +77,10 @@ export function initExplore() {
 // main.js가 주소가 바뀔 때마다 부른다. body의 data-screen은 이미 바뀐 상태다.
 export function showRoute(next) {
   const placeChanged = next.placeId !== route.placeId;
+  if (next.screen === "place" && placeChanged) backToGrid = started && route.screen === "photos";
   route = next;
+  started = true;
+  if (route.screen === "photos") photosPanel.scrollTop = gridScroll; // 상세에서 돌아오면 보던 자리로
   if (route.screen === "place" && (placeChanged || !detailContent.hasChildNodes())) renderDetail();
   fitMapIfVisible();
 }
@@ -165,7 +183,7 @@ function renderDetail() {
   const place = findPlace(route.placeId);
   if (!place) {
     detailContent.replaceChildren();
-    location.hash = "#photos";
+    location.replace("#photos"); // 기록을 쌓으면 뒤로 가기가 이 주소로 돌아와 다시 튕기기를 되풀이한다
     showToast("장소를 찾을 수 없어요");
     return;
   }
