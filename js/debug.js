@@ -1,6 +1,7 @@
 // 디버그 패널(?debug=1). 현장에서 GPS가 쓸 만한지 숫자로 확인하는 용도.
 // 장소 좌표는 브라우저에 없으므로 장소별 거리는 보여 주지 않는다.
 import { MOCK, getPosition, onPosition } from "./geo.js";
+import { supabase } from "./supabase.js";
 
 const DEBUG = new URLSearchParams(location.search).has("debug");
 
@@ -15,9 +16,20 @@ export function initDebug() {
     panel.classList.toggle("collapsed");
   });
 
+  // 승인 대기 장소 수. MOCK에서는 DB를 쓰지 않으므로 묻지 않는다.
+  let pending = "확인 중…";
+  if (MOCK) {
+    pending = "-";
+  } else {
+    supabase.rpc("pending_place_count").then(({ data, error }) => {
+      pending = error ? "불러오지 못함" : `${data}개`;
+      render();
+    });
+  }
+
   const render = () => {
     const me = getPosition();
-    const lines = [`모드: ${MOCK ? "가짜 위치(mock)" : "GPS"}`];
+    const lines = [`모드: ${MOCK ? "가짜 위치(mock)" : "GPS"}`, `승인 대기: ${pending}`];
     if (me) {
       lines.push(`위도: ${me.lat.toFixed(6)}`);
       lines.push(`경도: ${me.lng.toFixed(6)}`);
