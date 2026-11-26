@@ -16,16 +16,12 @@ export function initDebug() {
     panel.classList.toggle("collapsed");
   });
 
-  // 승인 대기 장소 수. MOCK에서는 DB를 쓰지 않으므로 묻지 않는다.
+  // 승인 대기 장소 수. mock은 위치만 가짜라서 DB는 그대로 쓴다.
   let pending = "확인 중…";
-  if (MOCK) {
-    pending = "-";
-  } else {
-    supabase.rpc("pending_place_count").then(({ data, error }) => {
-      pending = error ? "불러오지 못함" : `${data}개`;
-      render();
-    });
-  }
+  supabase.rpc("pending_place_count").then(({ data, error }) => {
+    pending = error ? "불러오지 못함" : `${data}개`;
+    render();
+  });
 
   const render = () => {
     const me = getPosition();

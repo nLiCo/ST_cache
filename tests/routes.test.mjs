@@ -27,6 +27,10 @@ test("parseRoute: 상세, 지도, 등록", () => {
   assert.deepEqual(parseRoute("#upload"), { screen: "upload", placeId: null });
 });
 
+test("parseRoute: 랭킹", () => assert.deepEqual(parseRoute("#rank"), { screen: "rank", placeId: null }));
+
+test("restoreHash: 랭킹도 되살린다", () => assert.equal(restoreHash("#rank", ""), "#rank"));
+
 test("placeHash", () => assert.equal(placeHash("abc"), "#place/abc"));
 
 test("restoreHash: 로그인 후 보던 상세로", () => {
