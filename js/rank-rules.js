@@ -1,0 +1,25 @@
+// ③ 랭킹 / 내 정보 화면의 문구 규칙(점수 표기, 승인 상태, 등록한 장소 안내).
+// 브라우저와 Node 테스트(node --test) 양쪽에서 불러야 해서 DOM도 다른 모듈도 import하지 않는다.
+
+const STATUS_LABELS = { pending: "승인 대기", approved: "승인", rejected: "반려" };
+
+// 점수는 늘 소수 한 자리로. 값이 없으면 0.0.
+export function formatScore(n) {
+  return Number(n ?? 0).toFixed(1);
+}
+
+// "42.5점 (찾기 30.5 · 등록 12.0)"
+export function scoreBreakdown(row) {
+  return `${formatScore(row.score)}점 (찾기 ${formatScore(row.find_score)} · 등록 ${formatScore(row.upload_score)})`;
+}
+
+export function statusLabel(status) {
+  return STATUS_LABELS[status] ?? "";
+}
+
+// 내가 등록한 장소 한 줄 안내. 승인된 장소만 말한다.
+export function uploadedPlaceNote(place) {
+  if (place.status !== "approved") return "";
+  if (!place.finder_count) return "아직 찾은 사람이 없어요";
+  return `${place.finder_count}명이 찾았어요 · +${formatScore(place.upload_score)}점`;
+}

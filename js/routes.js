@@ -1,5 +1,5 @@
 // 화면 주소(해시) 해석과 로그인 후 주소 되살리기 규칙. Node 테스트를 위해 아무것도 import하지 않는다.
-// #photos(기본) / #place/<장소 id> / #map / #upload. 모르는 주소와 로그인 결과 해시(#access_token=…)는 기본 화면.
+// #photos(기본) / #place/<장소 id> / #map / #upload / #rank. 모르는 주소와 로그인 결과 해시(#access_token=…)는 기본 화면.
 
 const PLACE_PREFIX = "#place/";
 
@@ -10,6 +10,7 @@ export function parseRoute(hash) {
   }
   if (hash === "#map") return { screen: "map", placeId: null };
   if (hash === "#upload") return { screen: "upload", placeId: null };
+  if (hash === "#rank") return { screen: "rank", placeId: null };
   return { screen: "photos", placeId: null };
 }
 
