@@ -3,11 +3,11 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { formatScore, scoreBreakdown, statusLabel, uploadedPlaceNote, placeCounts, scoreSum } from "../js/rank-rules.js";
 
-test("placeCounts: 찾은 곳과 올린 곳 수, 0곳은 뺀다", () => {
-  assert.equal(placeCounts({ found_count: 6, upload_count: 1 }), "찾기 6곳 · 등록 1곳");
-  assert.equal(placeCounts({ found_count: 7, upload_count: 0 }), "찾기 7곳");
-  assert.equal(placeCounts({ found_count: 0, upload_count: 2 }), "등록 2곳");
-  assert.equal(placeCounts({ found_count: 3 }), "찾기 3곳");
+test("placeCounts: 발견한 곳과 올린 곳 수, 0은 뺀다", () => {
+  assert.equal(placeCounts({ found_count: 6, upload_count: 1 }), "발견 6 / 등록 1");
+  assert.equal(placeCounts({ found_count: 7, upload_count: 0 }), "발견 7");
+  assert.equal(placeCounts({ found_count: 0, upload_count: 2 }), "등록 2");
+  assert.equal(placeCounts({ found_count: 3 }), "발견 3");
   assert.equal(placeCounts({ found_count: 0, upload_count: 0 }), "");
 });
 
