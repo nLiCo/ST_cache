@@ -13,6 +13,19 @@ export function scoreBreakdown(row) {
   return `${formatScore(row.score)}점 (찾기 ${formatScore(row.find_score)} · 등록 ${formatScore(row.upload_score)})`;
 }
 
+// 랭킹 줄의 닉네임 아래: "찾기 6곳 · 등록 1곳". 0곳인 쪽은 뺀다.
+export function placeCounts(row) {
+  const parts = [];
+  if (row.found_count) parts.push(`찾기 ${row.found_count}곳`);
+  if (row.upload_count) parts.push(`등록 ${row.upload_count}곳`);
+  return parts.join(" · ");
+}
+
+// 랭킹 줄의 총점 아래: "91.0 + 0.0" (찾기 점수 + 등록 점수)
+export function scoreSum(row) {
+  return `${formatScore(row.find_score)} + ${formatScore(row.upload_score)}`;
+}
+
 export function statusLabel(status) {
   return STATUS_LABELS[status] ?? "";
 }

@@ -5,7 +5,7 @@ import { getAuth, onAuthChange, signIn, openNicknameDialog } from "./auth.js";
 import { onPlacesChange } from "./explore.js";
 import { placeHash } from "./routes.js";
 import { escapeHtml } from "./ui.js";
-import { formatScore, scoreBreakdown, statusLabel, uploadedPlaceNote } from "./rank-rules.js";
+import { formatScore, scoreBreakdown, statusLabel, uploadedPlaceNote, placeCounts, scoreSum } from "./rank-rules.js";
 
 const section = document.getElementById("rank");
 
@@ -119,9 +119,9 @@ function renderBoard() {
       <span class="pos">${escapeHtml(r.rank)}</span>
       <span class="who">
         <span class="nick">${escapeHtml(r.nickname)}</span>
-        ${hasBreakdown(r) ? `<small>찾기 ${formatScore(r.find_score)} · 등록 ${formatScore(r.upload_score)}</small>` : ""}
+        ${placeCounts(r) ? `<small>${escapeHtml(placeCounts(r))}</small>` : ""}
       </span>
-      <span class="pts">${formatScore(r.score)}점<small>${escapeHtml(r.found_count ?? 0)}곳</small></span>
+      <span class="pts">${formatScore(r.score)}점${hasBreakdown(r) ? `<small>${escapeHtml(scoreSum(r))}</small>` : ""}</span>
     </li>`).join("");
   return `<ol class="rank-list">${rows}</ol>`;
 }

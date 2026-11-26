@@ -1,7 +1,20 @@
 // 랭킹 문구 규칙 테스트. 실행: node --test "tests/*.test.mjs"
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { formatScore, scoreBreakdown, statusLabel, uploadedPlaceNote } from "../js/rank-rules.js";
+import { formatScore, scoreBreakdown, statusLabel, uploadedPlaceNote, placeCounts, scoreSum } from "../js/rank-rules.js";
+
+test("placeCounts: 찾은 곳과 올린 곳 수, 0곳은 뺀다", () => {
+  assert.equal(placeCounts({ found_count: 6, upload_count: 1 }), "찾기 6곳 · 등록 1곳");
+  assert.equal(placeCounts({ found_count: 7, upload_count: 0 }), "찾기 7곳");
+  assert.equal(placeCounts({ found_count: 0, upload_count: 2 }), "등록 2곳");
+  assert.equal(placeCounts({ found_count: 3 }), "찾기 3곳");
+  assert.equal(placeCounts({ found_count: 0, upload_count: 0 }), "");
+});
+
+test("scoreSum: 찾기 점수 + 등록 점수", () => {
+  assert.equal(scoreSum({ find_score: 91, upload_score: 0 }), "91.0 + 0.0");
+  assert.equal(scoreSum({ find_score: 30.5, upload_score: 12 }), "30.5 + 12.0");
+});
 
 test("formatScore", () => {
   assert.equal(formatScore(42.5), "42.5");
