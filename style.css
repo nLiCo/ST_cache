@@ -32,8 +32,9 @@ html, body {
 }
 #menu a[aria-current="page"] { background: rgba(255,255,255,.18); color: #fff; font-weight: 700; }
 
-/* ② 등록 화면: 상단 아래 전체를 쓰고 길면 스크롤 */
-#upload {
+/* ② 등록 화면, ③ 랭킹 화면: 상단 아래 전체를 쓰고 길면 스크롤 */
+#upload,
+#rank {
   position: absolute;
   top: 48px; bottom: 0; left: 0; right: 0;
   overflow-y: auto;
@@ -99,7 +100,7 @@ body[data-screen="place"] #detail { display: flex; }
   top: 48px; bottom: 56px; left: 0; right: 0;
 }
 #photos { overflow-y: auto; background: #fff; }
-#upload { bottom: 56px; }
+#upload, #rank { bottom: 56px; }
 
 /* 아래 탭 (모바일) */
 #tabs {
@@ -229,7 +230,7 @@ body[data-screen="place"] #detail { display: flex; }
   body[data-screen="map"] #photos { display: block; }
   #map { bottom: 0; right: 380px; }
   #photos { bottom: 0; left: auto; width: 380px; border-left: 1px solid #ddd; }
-  #upload { bottom: 0; }
+  #upload, #rank { bottom: 0; }
   #grid { grid-template-columns: repeat(3, 1fr); }
 }
 
@@ -313,4 +314,38 @@ body[data-screen="place"] #detail { display: flex; }
   border-radius: 20px;
   font-size: 14px;
   box-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+
+/* ③ 랭킹 화면 */
+#rank h2 { margin: 0 0 10px; font-size: 18px; }
+#rank h3 { margin: 20px 0 8px; font-size: 15px; }
+#rank button { font: inherit; }
+#rank button.primary {
+  display: block; width: 100%; margin: 8px 0 0; padding: 12px;
+  border: 0; border-radius: 10px; background: #1f3b2d; color: #fff; font-weight: 700;
+}
+#rank .rank-me { margin-bottom: 12px; padding: 12px; border-radius: 10px; background: #eef4f0; font-size: 15px; }
+#rank .rank-me p { margin: 0; }
+#rank .rank-note { color: #666; font-size: 14px; }
+#rank .rank-fail { padding: 12px; border-radius: 10px; background: #fff4e0; font-size: 14px; }
+#rank .rank-fail p { margin: 0 0 8px; }
+#rank .rank-fail button { padding: 6px 12px; border: 1px solid #1f3b2d; border-radius: 8px; background: #fff; color: #1f3b2d; }
+#rank .rank-list { margin: 0; padding: 0; list-style: none; }
+#rank .rank-row { display: flex; align-items: center; gap: 10px; padding: 10px 8px; border-bottom: 1px solid #eee; }
+#rank .rank-row.me { background: #fff4d6; border-radius: 8px; }
+#rank .pos { width: 28px; text-align: center; font-weight: 700; color: #1f3b2d; }
+#rank .who { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+#rank .nick { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#rank .pts { display: flex; flex-direction: column; align-items: flex-end; font-weight: 700; }
+#rank small { color: #777; font-size: 12px; font-weight: 400; }
+#rank .rank-places { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+#rank .rank-place { display: flex; flex-direction: column; gap: 2px; color: inherit; text-decoration: none; font-size: 14px; }
+#rank .rank-place img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; background: #ddd; }
+#rank .rank-place span { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#rank .rank-place em { font-style: normal; font-size: 12px; font-weight: 700; color: #8a6400; }
+#rank .rank-place em.approved { color: #1f6b3a; }
+#rank .rank-place em.rejected { color: #c0392b; }
+@media (min-width: 900px) {
+  #rank { padding: 16px max(16px, calc((100% - 720px) / 2)); }
+  #rank .rank-places { grid-template-columns: repeat(4, 1fr); }
 }

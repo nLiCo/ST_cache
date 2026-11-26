@@ -4,6 +4,7 @@ import { signIn, signOut, onAuthChange, openNicknameDialog } from "./auth.js";
 import { initExplore, showRoute } from "./explore.js";
 import { parseRoute, photosTabHash } from "./routes.js";
 import { initUpload, setUploadVisible } from "./upload.js";
+import { initRank, setRankVisible } from "./rank.js";
 import { initDebug } from "./debug.js";
 
 const account = document.getElementById("account");
@@ -35,8 +36,8 @@ onAuthChange(({ user, profile }) => {
 // ---------- 해시 라우팅 ----------
 
 // 메뉴에서 불이 들어올 항목. 상세는 사진 탭에 속하고, PC 상단 메뉴에는 지도 항목이 없어 탐색(photos)에 불이 들어온다.
-const TAB_FOR = { photos: "photos", place: "photos", map: "map", upload: "upload" };
-const MENU_FOR = { photos: "photos", place: "photos", map: "photos", upload: "upload" };
+const TAB_FOR = { photos: "photos", place: "photos", map: "map", upload: "upload", rank: "rank" };
+const MENU_FOR = { photos: "photos", place: "photos", map: "photos", upload: "upload", rank: "rank" };
 
 let lastPhotosHash = "#photos"; // 마지막으로 보던 사진 화면(격자 또는 상세)
 const photosTab = document.querySelector('#tabs a[data-for="photos"]');
@@ -47,6 +48,7 @@ function route() {
   if (r.screen === "photos" || r.screen === "place") lastPhotosHash = location.hash || "#photos";
   showRoute(r);
   setUploadVisible(r.screen === "upload");
+  setRankVisible(r.screen === "rank");
   photosTab.setAttribute("href", photosTabHash(r.screen, lastPhotosHash));
   markCurrent("#tabs a", TAB_FOR[r.screen]);
   markCurrent("#menu a", MENU_FOR[r.screen]);
@@ -61,6 +63,7 @@ function markCurrent(selector, current) {
 
 initExplore();
 initUpload();
+initRank();
 initDebug();
 window.addEventListener("hashchange", route);
 route();

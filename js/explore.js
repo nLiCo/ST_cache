@@ -24,7 +24,7 @@ const markers = new Map();
 const placesListeners = [];
 
 let started = false;    // 첫 주소를 처리했는지(링크로 바로 들어온 상세와 앱 안에서 연 상세를 가른다)
-let backToGrid = false; // 지금 상세를 격자에서 열었는지. 그렇다면 ← 는 history.back()
+let backInApp = false;  // 지금 상세를 앱 안(격자·랭킹)에서 열었는지. 그렇다면 ← 는 history.back()
 let renderedPlaceId = null; // 상세에 지금 그려져 있는 장소
 let gridScroll = 0;    // 격자 스크롤 위치. 상세가 보이는 동안 패널 높이가 줄어 0으로 잘리므로 따로 기억한다
 
@@ -57,11 +57,11 @@ export function initExplore() {
   photosPanel.addEventListener("scroll", () => {
     if (route.screen === "photos") gridScroll = photosPanel.scrollTop;
   });
-  // ← : 격자에서 열었으면 기록을 하나 되돌린다(폰의 뒤로 가기가 다시 상세를 열지 않게).
+  // ← : 격자나 랭킹에서 열었으면 기록을 하나 되돌린다(폰의 뒤로 가기가 다시 상세를 열지 않게).
   // 링크·지도 별에서 바로 왔으면 지금 기록을 격자로 바꾼다(사이트 밖으로 나가지 않게).
   document.getElementById("detail-back").addEventListener("click", (e) => {
     e.preventDefault();
-    if (backToGrid) history.back();
+    if (backInApp) history.back();
     else location.replace("#photos");
   });
   // 폰을 돌리거나 창 너비가 900px을 넘나들면 숨어 있던 지도가 새로 보일 수 있다.
@@ -74,7 +74,7 @@ export function initExplore() {
 // main.js가 주소가 바뀔 때마다 부른다. body의 data-screen은 이미 바뀐 상태다.
 export function showRoute(next) {
   const entering = next.screen === "place" && (route.screen !== "place" || next.placeId !== route.placeId);
-  if (entering) backToGrid = started && route.screen === "photos";
+  if (entering) backInApp = started && (route.screen === "photos" || route.screen === "rank");
   route = next;
   started = true;
   if (route.screen === "photos") photosPanel.scrollTop = gridScroll; // 상세에서 돌아오면 보던 자리로
