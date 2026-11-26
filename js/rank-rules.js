@@ -8,9 +8,9 @@ export function formatScore(n) {
   return Number(n ?? 0).toFixed(1);
 }
 
-// "42.5점 (찾기 30.5 · 등록 12.0)"
+// 내 순위 카드: "42.5점 (30.5 + 12.0)" (총점, 찾기 점수 + 등록 점수)
 export function scoreBreakdown(row) {
-  return `${formatScore(row.score)}점 (찾기 ${formatScore(row.find_score)} · 등록 ${formatScore(row.upload_score)})`;
+  return `${formatScore(row.score)}점 (${scoreSum(row)})`;
 }
 
 // 랭킹 줄의 닉네임 아래: "발견 6 / 등록 1"(발견한 장소 수, 올린 장소 수). 0인 쪽은 뺀다.

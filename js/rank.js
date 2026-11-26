@@ -107,7 +107,8 @@ function renderMe({ ready, user, profile }) {
   }
   const row = Array.isArray(board) ? board.find((r) => r.is_me) : null;
   if (!row) return "";
-  return `<div class="rank-me"><p><strong>${escapeHtml(row.rank)}위</strong> · ${escapeHtml(hasBreakdown(row) ? scoreBreakdown(row) : `${formatScore(row.score)}점`)} · 찾은 장소 ${escapeHtml(row.found_count ?? 0)}곳</p></div>`;
+  const counts = placeCounts(row);
+  return `<div class="rank-me"><p><strong>${escapeHtml(row.rank)}위</strong> · ${escapeHtml(hasBreakdown(row) ? scoreBreakdown(row) : `${formatScore(row.score)}점`)}${counts ? ` · ${escapeHtml(counts)}` : ""}</p></div>`;
 }
 
 function renderBoard() {

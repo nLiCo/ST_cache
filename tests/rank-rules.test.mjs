@@ -24,7 +24,7 @@ test("formatScore", () => {
 });
 
 test("scoreBreakdown", () => {
-  assert.equal(scoreBreakdown({ score: 42.5, find_score: 30.5, upload_score: 12 }), "42.5점 (찾기 30.5 · 등록 12.0)");
+  assert.equal(scoreBreakdown({ score: 42.5, find_score: 30.5, upload_score: 12 }), "42.5점 (30.5 + 12.0)");
 });
 
 test("statusLabel", () => {
