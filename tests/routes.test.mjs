@@ -31,7 +31,7 @@ test("parseRoute: 랭킹", () => assert.deepEqual(parseRoute("#rank"), { screen:
 
 test("restoreHash: 랭킹도 되살린다", () => assert.equal(restoreHash("#rank", ""), "#rank"));
 
-test("placeHash",() => assert.equal(placeHash("abc"), "#place/abc"));
+test("placeHash", () => assert.equal(placeHash("abc"), "#place/abc"));
 
 test("restoreHash: 로그인 후 보던 상세로", () => {
   assert.equal(restoreHash("#place/abc", ""), "#place/abc");

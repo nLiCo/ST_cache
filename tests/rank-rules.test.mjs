@@ -23,5 +23,7 @@ test("statusLabel", () => {
 test("uploadedPlaceNote", () => {
   assert.equal(uploadedPlaceNote({ status: "approved", finder_count: 0, upload_score: 0 }), "아직 찾은 사람이 없어요");
   assert.equal(uploadedPlaceNote({ status: "approved", finder_count: 3, upload_score: 9.8 }), "3명이 찾았어요 · +9.8점");
+  assert.equal(uploadedPlaceNote({ status: "approved", upload_score: 0 }), "");
+  assert.equal(uploadedPlaceNote({ status: "approved", finder_count: null }), "");
   assert.equal(uploadedPlaceNote({ status: "pending", finder_count: 0, upload_score: 0 }), "");
 });

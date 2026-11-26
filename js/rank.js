@@ -15,6 +15,8 @@ let board = undefined;    // undefined: 읽는 중 / null: 실패 / 배열: lead
 let mine = undefined;     // my_places도 같은 규칙
 let boardRequest = 0;     // 늦게 온 응답이 새 응답을 덮어쓰지 않게 하는 번호
 let mineRequest = 0;
+let savedScroll = 0;      // 숨기기 전 스크롤 위치
+let restoring = false;    // 다시 보일 때 데이터가 그려지면 스크롤을 되돌린다
 
 export function initRank() {
   section.addEventListener("click", onClick);
@@ -23,14 +25,21 @@ export function initRank() {
     if (visible) render();
   });
   onAuthChange(() => {
+    // 다른 계정의 데이터가 잠깐이라도 보이지 않게 로그인 데이터를 비운다.
+    board = undefined;
+    mine = undefined;
     if (visible) reload();
   });
 }
 
 export function setRankVisible(next) {
+  if (visible && !next) savedScroll = section.scrollTop; // hidden이 되면 0으로 잘리므로 먼저 기억
   section.hidden = !next;
   visible = next;
-  if (next) reload();
+  if (next) {
+    restoring = true;
+    reload();
+  }
 }
 
 function reload() {
@@ -41,17 +50,18 @@ function reload() {
 
 async function loadBoard() {
   const request = ++boardRequest;
-  board = undefined;
+  if (board === null) board = undefined; // 실패 뒤 다시 시도: 불러오는 중으로. 이전 목록이 있으면 그대로 둔다
   const { data, error } = await supabase.from("leaderboard").select("*").order("rank").order("nickname");
   if (request !== boardRequest) return;
   board = error ? null : data;
+  restoring = false;
   render();
 }
 
 async function loadMine() {
   const request = ++mineRequest;
-  mine = undefined;
-  if (!getAuth().user) return;
+  if (!getAuth().user) { mine = undefined; return; }
+  if (mine === null) mine = undefined;
   const { data, error } = await supabase.from("my_places").select("*").order("created_at", { ascending: false });
   if (request !== mineRequest) return;
   mine = error ? null : data;
@@ -74,6 +84,7 @@ function render() {
   const parts = ["<h2>랭킹</h2>", renderMe(auth), renderBoard()];
   if (auth.user) parts.push(renderFound(), renderUploaded());
   section.innerHTML = parts.join("");
+  if (restoring && board !== undefined) section.scrollTop = savedScroll;
 }
 
 function failure(message, action) {
@@ -135,9 +146,10 @@ function renderUploaded() {
   else if (mine.length === 0) body = '<p class="rank-note">아직 올린 장소가 없어요 <a href="#upload">장소 올리러 가기</a></p>';
   else {
     body = `<div class="rank-places">${mine.map((p) => {
+      const note = uploadedPlaceNote(p);
       const inner = `${thumb(p.photo_path)}<span>${escapeHtml(p.name)}</span>`
         + `<em class="${escapeHtml(p.status)}">${escapeHtml(statusLabel(p.status))}</em>`
-        + `<small>${escapeHtml(uploadedPlaceNote(p))}</small>`;
+        + (note ? `<small>${escapeHtml(note)}</small>` : "");
       return p.status === "approved"
         ? `<a class="rank-place" href="${escapeHtml(placeHash(p.id))}">${inner}</a>`
         : `<div class="rank-place">${inner}</div>`;

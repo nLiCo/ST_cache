@@ -20,6 +20,7 @@ export function statusLabel(status) {
 // 내가 등록한 장소 한 줄 안내. 승인된 장소만 말한다.
 export function uploadedPlaceNote(place) {
   if (place.status !== "approved") return "";
+  if (place.finder_count == null) return ""; // 마이그레이션 전에는 칸이 없다
   if (!place.finder_count) return "아직 찾은 사람이 없어요";
   return `${place.finder_count}명이 찾았어요 · +${formatScore(place.upload_score)}점`;
 }
